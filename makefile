@@ -10,7 +10,7 @@ all: main.o
 main.o: main.c patriciaTree.o
 	$(CC) $(CFLAGS) main.c -o main.o
 
-treeAVL.o: patriciaTree.h patriciaTree.c
+patriciaTree.o: patriciaTree.h patriciaTree.c
 	@echo compiling application
 	$(CC) $(CFLAGS) patriciaTree.c -o patriciaTree.o
 
