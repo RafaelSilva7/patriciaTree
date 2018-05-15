@@ -7,6 +7,147 @@
 
 #include "patriciaTree.h"
 
+
+bool insert_controller(Node** p_tree, char* key)
+{
+    int posit = 0;
+
+    // Caso a raiz seja nula
+    if (*p_tree = NULL)
+    {
+        // Aloco a raiz da arvore
+        (*p_tree) = (Node*) malloc(sizeof(Node));
+        (*p_tree)->label = 0;
+        (*p_tree)->prefix = NULL;
+        (*p_tree)->left = (*p_tree)->right = NULL;
+    }
+
+    // Realiza a busca e insercao da nova chave
+    return find_insert(p_tree, p_tree, key, &posit);
+}
+
+
+bool find_insert(Node** p_tree, Node** root, char* key, int* posit)
+{
+    if ((*root) == NULL) return 0;
+    
+    int size = strlen((*root)->prefix);
+    int size_key = strlen(key);
+
+    // Caso nao esteja na raiz procuro o local a ser inserido
+    if ((*p_tree) != (*root))
+    {
+        for (int cont = 0; cont < size; cont++)
+        {
+            // percorri toda a chave (uma chave n pode estar contida dentro de outra)
+            if (*posit == size_key)
+                return 0;
+            // encontrei a posicao a ser inserida
+            if ((*root)->prefix[cont] != key[*posit])
+                return insert(p_tree, root, key, posit, cont);
+
+            (*posit)++;
+        }
+
+        // chave invalida (iguais)
+        if (size == size_key)
+            return 0;
+    }
+
+    bool resp;
+    // insercao ou busca a direita
+    if (key[*posit])
+    {
+        if ((*root)->right == NULL)
+            resp = insert(p_tree, &(*root)->right, key, posit, 0);
+        else
+            resp = find_insert(p_tree, (*root)->right, key, posit);
+    }
+    // insercao ou busca a esquerda
+    else
+    {
+        if ((*root)->left == NULL)
+            resp = insert(p_tree, &(*root)->left, key, posit, 0);
+        else
+            resp = find_insert(p_tree, (*root)->left, key, posit);
+    }
+
+    return resp;
+}
+
+
+bool insert(Node** p_tree, Node** root, char* key, int* posit, int posit_root)
+{
+    int size_key = strlen(key);
+
+    // Aloca o node que recebera o restante da chave a ser inserida
+    Node* new = (Node*) malloc(sizeof(Node));
+    new->prefix = (char*) calloc(size_key - (*posit), sizeof(char));
+    new->left = new->right = NULL;
+
+    // Somente insere um novo node
+    if ((*root) == NULL)
+    {
+        for(int i = *posit; i < size_key; i++)
+        {
+            new->prefix[i] = key[*posit];
+            (*posit)++;
+        }
+        (*root) = new;
+    }
+    else
+    {
+        char str_parent[posit_root+1];
+        int size = strlen((*root)->prefix);
+        int cont;
+
+        // Aloca o node que recebera o restante da chave do node atual
+        Node* sister = (Node*) malloc(sizeof(Node));
+        sister->left = sister->right = NULL;
+        sister->prefix = (char*) calloc(size - posit_root, sizeof(char));
+
+        // Armazeno o valor de prefixo
+        for (int i = 0; i <= posit_root; i++)
+            str_parent[i] = (*root)->prefix[i];
+
+        cont = 0;
+        // O restante da chavo do node
+        for (int i = posit_root; i < size; i++)
+        {
+            sister->prefix[cont] = (*root)->prefix[i];
+            cont++;
+        }
+
+        cont = 0;
+        // O restante da nova chave
+        for (int i = *posit; i < size_key; i++)
+        {
+            new->prefix[cont] = key[i];
+            cont++;
+        }
+
+        strcpy((*root)->prefix, str_parent);
+        
+        // Caso new deva ser inserido a direita
+        if (new->prefix[0])
+        {
+            (*root)->left = sister;
+            (*root)->right = new;
+        }
+        else
+        {
+            (*root)->left = new;
+            (*root)->right = sister;
+        }
+    }
+    
+    // Numero de palavras armazenadas
+    (*p_tree)->label++;
+
+    return 1;
+}
+
+/**
 bool insert(Node** root, char* key)
 {
     // Verifica se a raiz é nula
@@ -124,3 +265,4 @@ bool insert(Node** root, char* key)
     }
     return 1;
 }
+*/

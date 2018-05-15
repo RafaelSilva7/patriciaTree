@@ -11,11 +11,11 @@ int main() {
 
     Node* patriciaTree = NULL;
 
-    insert(&patriciaTree, "arara");
-    insert(&patriciaTree, "arrasara");
-    insert(&patriciaTree, "asas");
-    insert(&patriciaTree, "assas");
-    insert(&patriciaTree, "assara");
+    insert_controller(&patriciaTree, "10101");
+    insert_controller(&patriciaTree, "10110110");
+    insert_controller(&patriciaTree, "101101101");
+    insert_controller(&patriciaTree, "01011100");
+    insert_controller(&patriciaTree, "01010");
 
     return 0;
 }
