@@ -17,5 +17,7 @@ int main() {
     insert_controller(&patriciaTree, "01011100");
     insert_controller(&patriciaTree, "01010");
 
+    printf("Hello World!!!\n");
+    
     return 0;
 }

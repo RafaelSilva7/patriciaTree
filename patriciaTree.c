@@ -61,7 +61,7 @@ bool find_insert(Node** p_tree, Node** root, char* key, int* posit)
         if ((*root)->right == NULL)
             resp = insert(p_tree, &(*root)->right, key, posit, 0);
         else
-            resp = find_insert(p_tree, (*root)->right, key, posit);
+            resp = find_insert(p_tree, &(*root)->right, key, posit);
     }
     // insercao ou busca a esquerda
     else
@@ -69,7 +69,7 @@ bool find_insert(Node** p_tree, Node** root, char* key, int* posit)
         if ((*root)->left == NULL)
             resp = insert(p_tree, &(*root)->left, key, posit, 0);
         else
-            resp = find_insert(p_tree, (*root)->left, key, posit);
+            resp = find_insert(p_tree, &(*root)->left, key, posit);
     }
 
     return resp;
