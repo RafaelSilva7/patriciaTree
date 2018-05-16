@@ -13,7 +13,7 @@ bool insert_controller(Node** p_tree, char* key)
     int posit = 0;
 
     // Caso a raiz seja nula
-    if (*p_tree = NULL)
+    if (*p_tree == NULL)
     {
         // Aloco a raiz da arvore
         (*p_tree) = (Node*) malloc(sizeof(Node));
@@ -30,13 +30,13 @@ bool insert_controller(Node** p_tree, char* key)
 bool find_insert(Node** p_tree, Node** root, char* key, int* posit)
 {
     if ((*root) == NULL) return 0;
-    
-    int size = strlen((*root)->prefix);
-    int size_key = strlen(key);
 
     // Caso nao esteja na raiz procuro o local a ser inserido
     if ((*p_tree) != (*root))
     {
+        int size = strlen((*root)->prefix);
+        int size_key = strlen(key);
+
         for (int cont = 0; cont < size; cont++)
         {
             // percorri toda a chave (uma chave n pode estar contida dentro de outra)
@@ -49,21 +49,22 @@ bool find_insert(Node** p_tree, Node** root, char* key, int* posit)
             (*posit)++;
         }
 
-        // chave invalida (iguais)
-        if (size == size_key)
+        // chave invalida (iguais) ou a chave atual esta contida na nova chave
+        if (size == size_key || (size < size_key && (*root)->right == NULL && (*root)->left == NULL))
             return 0;
     }
 
     bool resp;
+
     // insercao ou busca a direita
-    if (key[*posit])
+    if (key[*posit] == '1')
     {
         if ((*root)->right == NULL)
             resp = insert(p_tree, &(*root)->right, key, posit, 0);
         else
             resp = find_insert(p_tree, &(*root)->right, key, posit);
     }
-    // insercao ou busca a esquerda
+        // insercao ou busca a esquerda
     else
     {
         if ((*root)->left == NULL)
@@ -97,7 +98,7 @@ bool insert(Node** p_tree, Node** root, char* key, int* posit, int posit_root)
     }
     else
     {
-        char str_parent[posit_root+1];
+        char* str_parent = (char*) calloc(posit_root-1, sizeof(char));
         int size = strlen((*root)->prefix);
         int cont;
 
@@ -107,7 +108,7 @@ bool insert(Node** p_tree, Node** root, char* key, int* posit, int posit_root)
         sister->prefix = (char*) calloc(size - posit_root, sizeof(char));
 
         // Armazeno o valor de prefixo
-        for (int i = 0; i <= posit_root; i++)
+        for (int i = 0; i < posit_root; i++)
             str_parent[i] = (*root)->prefix[i];
 
         cont = 0;
@@ -126,10 +127,10 @@ bool insert(Node** p_tree, Node** root, char* key, int* posit, int posit_root)
             cont++;
         }
 
-        strcpy((*root)->prefix, str_parent);
-        
+        (*root)->prefix = str_parent;
+
         // Caso new deva ser inserido a direita
-        if (new->prefix[0])
+        if (new->prefix[0] == '1')
         {
             (*root)->left = sister;
             (*root)->right = new;
@@ -140,7 +141,7 @@ bool insert(Node** p_tree, Node** root, char* key, int* posit, int posit_root)
             (*root)->right = sister;
         }
     }
-    
+
     // Numero de palavras armazenadas
     (*p_tree)->label++;
 
