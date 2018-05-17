@@ -17,7 +17,13 @@ int main() {
     insert_controller(&patriciaTree, "01011100");
     insert_controller(&patriciaTree, "01010");
 
-    printf("Hello World!!!\n");
+    remove_controller(&patriciaTree, "01010");
+    remove_controller(&patriciaTree, "01011100");
+
+    if (find_controller(&patriciaTree, "01010"))
+        printf("Chave encontrada\n");
+    else
+        printf("Chave não encontrada\n");
     
     return 0;
 }

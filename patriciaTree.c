@@ -34,8 +34,8 @@ bool find_insert(Node** p_tree, Node** root, char* key, int* posit)
     // Caso nao esteja na raiz procuro o local a ser inserido
     if ((*p_tree) != (*root))
     {
-        int size = strlen((*root)->prefix);
-        int size_key = strlen(key);
+        int size = (int) strlen((*root)->prefix);
+        int size_key = (int) strlen(key);
 
         for (int cont = 0; cont < size; cont++)
         {
@@ -79,11 +79,11 @@ bool find_insert(Node** p_tree, Node** root, char* key, int* posit)
 
 bool insert(Node** p_tree, Node** root, char* key, int* posit, int posit_root)
 {
-    int size_key = strlen(key);
+    int size_key = (int) strlen(key);
 
     // Aloca o node que recebera o restante da chave a ser inserida
     Node* new = (Node*) malloc(sizeof(Node));
-    new->prefix = (char*) calloc(size_key - (*posit), sizeof(char));
+    new->prefix = (char*) calloc((size_t) (size_key - (*posit)), sizeof(char));
     new->left = new->right = NULL;
 
     // Somente insere um novo node
@@ -98,14 +98,14 @@ bool insert(Node** p_tree, Node** root, char* key, int* posit, int posit_root)
     }
     else
     {
-        char* str_parent = (char*) calloc(posit_root-1, sizeof(char));
-        int size = strlen((*root)->prefix);
+        char* str_parent = (char*) calloc((size_t) (posit_root - 1), sizeof(char));
+        int size = (int) strlen((*root)->prefix);
         int cont;
 
         // Aloca o node que recebera o restante da chave do node atual
         Node* sister = (Node*) malloc(sizeof(Node));
         sister->left = sister->right = NULL;
-        sister->prefix = (char*) calloc(size - posit_root, sizeof(char));
+        sister->prefix = (char*) calloc((size_t) (size - posit_root), sizeof(char));
 
         // Armazeno o valor de prefixo
         for (int i = 0; i < posit_root; i++)
@@ -148,122 +148,155 @@ bool insert(Node** p_tree, Node** root, char* key, int* posit, int posit_root)
     return 1;
 }
 
-/**
-bool insert(Node** root, char* key)
-{
-    // Verifica se a raiz é nula
-    if (!(*root))
+bool remove_controller(Node **p_tree, char *key) {
+    if (*p_tree == NULL) return 0;
+
+    int posit = 0;
+
+    // Procura a chave e o remove
+    if ((*p_tree)->label != 0)
+        find_remove(p_tree, p_tree, key, &posit);
+
+    return 1;
+}
+
+bool find_remove(Node **p_tree, Node** root, char *key, int* posit) {
+
+    // Caso esteja na raiz
+    if ((*root) == (*p_tree))
     {
-        Node* new = (Node*) calloc(1,sizeof(Node));
-        new->prefix = (char*) malloc(strlen(key)* sizeof(char));
-        strcpy(new->prefix, key);
-        new->label = 0;
-        new->left = new->right = NULL;
-        (*root) = new;
+        if (key[*posit] == '1')
+        {
+            // Verifico se o node a direita deve ser removido
+            if (find_remove(p_tree, &(*root)->right, key, posit))
+            {
+                free((*root)->right);
+                (*root)->right = NULL;
+
+            }
+        }
+        else
+        {
+            // Verifico se o node a esquerda deve ser removido
+            if (find_remove(p_tree, &(*root)->left, key,posit))
+            {
+                free((*root)->left);
+                (*root)->left = NULL;
+            }
+        }
+
+        // Diminuo o numero de chaves armazenadas
+        (*p_tree)->label--;
     }
     else
     {
-        int i = (*root)->label, cont_p = 0;
-        // Encontra a posicao de intercecao das chaves
-        for (cont_p = 0; i < strlen((*root)->prefix); cont_p++)
-        {
-            if (key[i] == '\0' || key[i] != (*root)->prefix[cont_p])
-                break;
-            i++;
-        }
+        int size = (int) strlen((*root)->prefix);
+        int size_key = (int) strlen(key);
 
-        // Caso a chave a ser inserida seja menor
-        if (i <= strlen((*root)->prefix))
+        // Verfica se este sera o node a ser removido
+        for (int i = 0; i < size; i++)
         {
-            // Caso a mesma seja invalida
-            if (key[i] == '\0')
-            {
-                printf("error 01!\n\t Chave invalida: Uma chave nao pode estar contida dentro de outra.");
+            // Chave a seja menor que a chave ja inserida
+            if (*posit == size_key || key[*posit] != (*root)->prefix[i])
                 return 0;
-            }
-                // Adiciona um novo node e ajusta a arvore para receber a nova chave
-            else
-            {
-                Node* temp;
-                char* char_temp = (char*) calloc(strlen((*root)->prefix)-cont_p, sizeof(char));
-                int cont;
-
-                Node* parent = (Node*) malloc(sizeof(Node));
-                parent->prefix = (char*) calloc(cont_p, sizeof(char));
-
-                Node* sister = (Node*) malloc(sizeof(Node));
-                sister->prefix = (char*) calloc(strlen(key)-i, sizeof(char));
-
-                strncpy(parent->prefix, (*root)->prefix, cont_p);
-                parent->label = (*root)->label;
-
-                cont = 0;
-                for (int j = i; j < strlen(key); j++)
-                {
-                    sister->prefix[cont] = key[j];
-                    cont++;
-                }
-                cont = 0;
-                for (int j = cont_p; j < strlen((*root)->prefix); j++)
-                {
-                    char_temp[cont] = (*root)->prefix[j];
-                    cont++;
-                }
-
-                strcpy((*root)->prefix, char_temp);
-                (*root)->label = sister->label = i;
-
-                temp = (*root);
-                (*root) = parent;
-                parent->left = temp;
-                parent->right = sister;
-            }
+            (*posit)++;
         }
-            // Caso possuam o mesmo tamanho
+
+        // Encontrei a chave a ser removida
+        if (*posit == size_key)
+            return 1;
         else
         {
-            // Verifica se as chaves são iguais ou menor
-            if (key[i] == '\0')
+            if (key[*posit] == '1' && (*root)->right != NULL)
             {
-                printf("error 01!\n\t Chave invalida: Uma chave nao pode estar contida dentro de outra.");
-                return 0;
-            }
-
-                // Caso a insercao seja a esquerda
-            if ((*root)->left && (*root)->left->prefix[0] == key[i])
-            {
-                insert(&(*root)->left, key);
-            }
-                // Caso a insercao seja a direita
-            else if ((*root)->right && (*root)->right->prefix[0] == key[i])
-            {
-                insert(&(*root)->right, key);
+                // Verifico a chave a direita
+                if (find_remove(p_tree, &(*root)->right, key, posit))
+                    remove_right(p_tree, root);
             }
             else
             {
-                // Verifica se os dois filhor são diferentes de null
-                if (!(*root)->left && (*root)->right)
-                {
-                    printf("error 03!\n\t Chave invalida: Chavo com alfabeto invalido.");
-                    return 0;
-                }
-
-                int cont;
-                Node* new = (Node*) malloc(sizeof(Node));
-                new->prefix = (char*) calloc(strlen(key)-i, sizeof(char));
-                new->label = i;
-
-                cont = 0;
-                for (int j = i; j < strlen(key); ++j) {
-                    new->prefix[cont] = key[j];
-                    cont++;
-                }
-
-                (*root)->left = new;
+                // Verifico a chave a esquerda
+                if (find_remove(p_tree, &(*root)->left, key, posit))
+                    remove_left(p_tree, root);
             }
         }
-
     }
-    return 1;
+
+    return 0;
 }
-*/
+
+void remove_right(Node **p_tree, Node **root) {
+    // Remove o node a direita
+    free((*root)->right);
+
+    Node* node_aux = (*root)->left;
+    int new_size = (int) (strlen((*root)->prefix) + strlen(node_aux->prefix));
+    char* str_temp = (char*) malloc(new_size * sizeof(char));
+
+    // prepara a nova string para o node atual
+    strcpy(str_temp, (*root)->prefix);
+    strcat(str_temp, node_aux->prefix);
+
+    // Mantem a arvore estritamente binaria
+    (*root)->right = node_aux->right;
+    (*root)->left = node_aux;
+    (*root)->prefix = str_temp;
+}
+
+
+void remove_left(Node **p_tree, Node **root) {
+    // Remove o node a esquerda
+    free((*root)->left);
+
+    Node* node_aux = (*root)->right;
+    int new_size = (int) (strlen((*root)->prefix) + strlen(node_aux->prefix));
+    char* str_temp = (char*) malloc(new_size * sizeof(char));
+
+    // prepara a nova string para o node atual
+    strcpy(str_temp, (*root)->prefix);
+    strcat(str_temp, node_aux->prefix);
+
+    // Mantem a arvore estritamente binaria
+    (*root)->right = node_aux;
+    (*root)->prefix = str_temp;
+}
+
+bool find_controller(Node** p_tree, char* key)
+{
+    if (*p_tree == NULL || key == NULL) return 0;
+
+    int posit = 0;
+    return find(p_tree, p_tree, key, &posit);
+}
+
+bool find(Node** p_tree, Node** root, char* key, int* posit)
+{
+    // Caso seja diferente da raiz
+    if (*p_tree != *root)
+    {
+        int size = (int) strlen((*root)->prefix);
+        int size_key = (int) strlen(key);
+
+        // Analisa este node da chave
+        for (int i = 0; i < size; i++)
+        {
+            // Caso a chave seja invalida (menor ou diferente)
+            if (size_key == *posit || key[*posit] != (*root)->prefix[i])
+                return 0;
+            (*posit)++;
+        }
+
+        // Chave valida
+        if (*posit == size_key && (*root)->right == NULL && (*root)->left == NULL)
+            return 1;
+    }
+
+    // Realiza a procura no node a direita
+    if (key[0] == '1' && (*root)->right != NULL)
+        return find(p_tree, &(*root)->right, key, posit);
+        // Realiza a procura no node a esquerda
+    else if (key[0] == '0' && (*root)->left != NULL)
+        return find(p_tree, &(*root)->left, key, posit);
+
+    return 0;
+}
